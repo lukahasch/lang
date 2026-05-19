@@ -1,0 +1,7 @@
+[2026-04-23T14:52:35Z INFO typy] union TypeID(4, PhantomData<learn::Type>) Type(Function(TypeID(7, PhantomData<learn::Type>), TypeID(3, PhantomData<learn::Type>)))
+[2026-04-23T14:52:35Z INFO typy] union TypeID(7, PhantomData<learn::Type>) TypeID(0, PhantomData<learn::Type>)
+[2026-04-23T14:52:35Z INFO typy] union TypeID(2, PhantomData<learn::Type>) Type(Function(TypeID(8, PhantomData<learn::Type>), TypeID(1, PhantomData<learn::Type>)))
+[2026-04-23T14:52:35Z INFO typy] union TypeID(8, PhantomData<learn::Type>) TypeID(1, PhantomData<learn::Type>)
+[2026-04-23T14:52:35Z INFO typy] union TypeID(0, PhantomData<learn::Type>) TypeID(5, PhantomData<learn::Type>)
+[2026-04-23T14:52:35Z INFO typy] union TypeID(3, PhantomData<learn::Type>) TypeID(6, PhantomData<learn::Type>)
+[2026-04-23T14:52:35Z INFO typy] union TypeID(4, PhantomData<learn::Type>) Set(Function(TypeID(7, PhantomData<learn::Type>), TypeID(3, PhantomData<learn::Type>)))

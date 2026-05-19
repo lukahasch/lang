@@ -1,0 +1,6 @@
+[workspace]
+members = ["ml-lua",
+    "skim",
+    "typy",
+]
+resolver = "3"
