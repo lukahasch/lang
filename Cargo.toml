@@ -1,5 +1,6 @@
 [workspace]
-members = ["ml-lua",
+members = [
+    "ml-lua",
     "skim",
     "typy",
 ]
