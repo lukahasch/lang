@@ -31,7 +31,7 @@ pub fn parse(source: Arc<str>, content: &str) {
     );
 }
 
-#[cfg(tests)]
+#[cfg(test)]
 #[allow(clippy::precedence)]
 mod tests {
     use skim::{Parsed, Parser, just, select, sequence, syntax};
@@ -62,7 +62,7 @@ mod tests {
             _ => None,
         });
         let parsed: Parsed<_, String> =
-            syntax![Token::Let ! <ident> (<ident> {identifier} | <ident> {just(Token::Let).map(|_| "")}) Token::Equal <expr> {identifier}]
+            syntax![Token::Let ! <ident> (<ident> {identifier.as_ref()} | <ident> {just(Token::Let).map(|_| "")}) Token::Equal <expr> {identifier.as_ref()}]
                 .parse(&mut test_ctx("let x = test"));
         let mut results = parsed.unwrap_ok();
         assert_eq!(results.take::<"ident", _>().take::<"ident", _>(), "x");
