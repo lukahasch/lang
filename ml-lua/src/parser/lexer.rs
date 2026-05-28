@@ -2,6 +2,8 @@ use std::{ops::Range, sync::Arc};
 
 use derive_more::Display;
 use logos::Logos;
+use miette::SourceSpan;
+use skim::Merge;
 
 #[derive(Debug, Clone, Copy, Display, Logos, PartialEq, Eq)]
 #[logos(skip(" |\t|\n"))]
@@ -38,11 +40,27 @@ impl<'a> Lexer<'a> {
     }
 }
 
-#[derive(Clone, Display, PartialEq)]
+#[derive(Clone, Debug, Display, PartialEq)]
 #[display("{source}:{}..{}", range.start, range.end)]
 pub struct Span {
     pub source: Arc<str>,
     pub range: Range<usize>,
+}
+
+impl Merge for Span {
+    fn merge(a: Self, b: Self) -> Self {
+        assert_eq!(a.source, b.source);
+        Span {
+            source: a.source,
+            range: a.range.start.min(b.range.start)..a.range.end.max(b.range.end),
+        }
+    }
+}
+
+impl From<Span> for SourceSpan {
+    fn from(value: Span) -> Self {
+        value.range.into()
+    }
 }
 
 impl<'a> Iterator for Lexer<'a> {

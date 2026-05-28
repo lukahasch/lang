@@ -1,12 +1,42 @@
 use std::sync::Arc;
 
-use skim::Context;
+use derive_more::Display;
+use skim::{Checkpoint, Context, Delimiter, Parsed, Parser, Spanned, select};
 
-use crate::parser::lexer::{Lexer, Span, Token};
+use crate::{
+    Expr, Tagged,
+    error::{Diag, Expected},
+    parser::lexer::{Lexer, Span, Token},
+};
 
 pub mod lexer;
 
-pub type Ctx<'a> = Context<Lexer<'a>, Token<'a>, (), Span, (), ()>;
+#[derive(Clone)]
+pub struct State;
+
+#[derive(PartialEq, Clone, Debug, Display)]
+pub enum Delim {}
+
+impl Delimiter for Delim {
+    fn opposite(&self) -> Self {
+        todo!()
+    }
+}
+
+impl Checkpoint for State {
+    type Save = Self;
+
+    fn checkpoint(&self) -> Self::Save {
+        self.clone()
+    }
+
+    fn restore(&mut self, save: Self::Save) {
+        *self = save;
+    }
+}
+
+pub type Ctx<'a> = Context<Lexer<'a>, Token<'a>, (), Span, Delim, State>;
+pub type E = Expr<Span, String>;
 
 pub fn context(source: Arc<str>, content: &'_ str) -> Ctx<'_> {
     Context::new(
@@ -15,20 +45,31 @@ pub fn context(source: Arc<str>, content: &'_ str) -> Ctx<'_> {
             source: source.clone(),
             range: 0..0,
         },
-        (),
+        State,
     )
 }
 
-pub fn parse(source: Arc<str>, content: &str) {
+pub fn parse(source: Arc<str>, content: &str) -> Parsed<E, Diag<'_>> {
     let lexer = Lexer::new(source.clone(), content);
-    let _ctx: Ctx = Context::new(
+    let mut ctx: Ctx = Context::new(
         lexer,
         Span {
             source: source.clone(),
             range: 0..0,
         },
-        (),
+        State,
     );
+    variable.parse(&mut ctx)
+}
+
+fn variable<'a>(ctx: &mut Ctx<'a>) -> Parsed<E, Diag<'a>> {
+    select(Expected::Variable, |token| match token {
+        Token::Identifier(s) => Some(String::from(s)),
+        _ => None,
+    })
+    .spanned()
+    .map(|Spanned(ident, span)| E::Variable(Tagged(ident, span)))
+    .parse(ctx)
 }
 
 #[cfg(test)]

@@ -78,21 +78,14 @@ pub use tap::Pipe;
 
 #[macro_export]
 macro_rules! finish {
-    ({$({ $($pipe:tt)* } $parser:expr ,)*}) => {{
-        use $crate::Parser;
+    ({{ $($first_pipe:tt)* } $first_parser:expr, $({ $($pipe:tt)* } $parser:expr ,)*}) => {{
         use $crate::syntax::Pipe;
 
-        { move |_: &mut _| $crate::parser::Parsed::Ok(()) }
+        $first_parser.pipe($($first_pipe)*)
         $(
             .and($parser)
             .pipe( $($pipe)* )
         )*
-        .map(
-            |$crate::tool!(
-                {_} $crate::tool!(@identifiers{} {$({$parser})*} { A B C D E F })
-            )|
-            stringify!($crate::tool!(@identifiers{} {$({$parser})*} { {B} {C} {D} {E} {F} }))
-        )
     }};
     ({$({ $($pipe:tt)* } $parser:expr $(=> $binding:ident $(: $map:expr)?)? ,)*}) => {{
         use $crate::Parser;
@@ -119,24 +112,14 @@ macro_rules! tool {
     (@unwrap { $($acc:tt)* }) => {
         $($acc)*
     };
-
     (@unwrap { $($acc:tt)* } { $($next:tt)* } $( { $($rest:tt)* } )*) => {
         $crate::tool!(@unwrap { ($($acc)*, $($next)*) } $( { $($rest)* } )*)
     };
-
     ({ $($first:tt)* } $( { $($rest:tt)* } )*) => {
         $crate::tool!(@unwrap { $($first)* } $( { $($rest)* } )*)
     };
-
     (@first $first:tt $($rest:tt)*) => {
         $first
-    };
-
-    (@identifiers {$($acc:tt)*} {$flen:tt } {$fi:tt} ) => {
-        $($acc)* $fi
-    };
-    (@identifiers {$($acc:tt)*} {$flen:tt $($len:tt)*} {$fi:tt $($idents:tt)*}) => {
-        $crate::tool!(@identifiers {$($acc)* $fi} {$flen $($len)*} {$($idents)*})
     };
 }
 #[macro_export]
